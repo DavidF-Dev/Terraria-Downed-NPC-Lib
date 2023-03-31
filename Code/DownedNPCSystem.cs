@@ -90,11 +90,8 @@ internal sealed class DownedNPCSystem : ModSystem
     ///     Get the actual index in <see cref="_downedNPCs" /> for the specified npc net id.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    [Pure]
     private static int GetIndex(int netId)
     {
-        // 0 -> NPCID.NegativeIDCount is for negative ids
-        // NPCID.NegativeIDCount -> (NPCLoader.NPCCount - NPCID.NegativeIDCount) is for positive ids
         return netId < 0 ? Math.Abs(netId) - 1 : netId + Math.Abs(NPCID.NegativeIDCount);
     }
 
@@ -213,6 +210,7 @@ internal sealed class DownedNPCSystem : ModSystem
         }
 
         tag.Add("downedNPCs", downedNPCsTag);
+        
         Mod.Logger.Debug($"Saved {downedNPCsTag.Count} entries for world '{Main.worldName}'.");
     }
 

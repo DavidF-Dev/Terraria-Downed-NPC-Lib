@@ -8,18 +8,31 @@ using EasyPacketsLib;
 
 namespace DownedNPCLib;
 
+/// <summary>
+///     Packet used to sync a downed npc count between server and client.
+/// </summary>
 internal readonly struct DownedNPCPacket : IEasyPacket<DownedNPCPacket>
 {
     #region Static Fields and Constants
 
+    /// <summary>
+    ///     Sent by client to request a sync from the server.
+    ///     Note, this will sync only those with a count greater than zero.
+    /// </summary>
     public static readonly DownedNPCPacket RequestSync = new(-1, -1);
 
     #endregion
 
     #region Fields
 
+    /// <summary>
+    ///     Actual index in the downed array; not the npc net id or type.
+    /// </summary>
     public readonly int Index;
 
+    /// <summary>
+    ///     Downed count.
+    /// </summary>
     public readonly int Count;
 
     #endregion

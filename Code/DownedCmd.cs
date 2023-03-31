@@ -1,10 +1,18 @@
-﻿using Microsoft.Xna.Framework;
+﻿/*
+ *  DownedCmd.cs
+ *  DavidFDev
+*/
+
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace DownedNPCLib;
 
+/// <summary>
+///     Debug command to get or set the downed count.
+/// </summary>
 // ReSharper disable once UnusedType.Global
 internal sealed class DownedCmd : ModCommand
 {
