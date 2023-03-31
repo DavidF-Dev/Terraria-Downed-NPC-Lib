@@ -1,0 +1,8 @@
+displayName = Downed NPC Library
+author = DavidFDev
+version = 0.1
+homepage = https://github.com/DavidF-Dev/Terraria-Downed-NPC-Lib
+hideCode = false
+hideResources = true
+includeSource = false
+buildIgnore = Properties/*, *.md, *.DotSettings.user
