@@ -18,6 +18,10 @@ This includes enemies, town NPCs, bosses, critters, etc.
 - Add `DownedNPCLib.dll` to your project as a reference (download from [Releases](https://github.com/DavidF-Dev/Terraria-Downed-NPC-Lib/releases/latest)).
 - Subscribe to the library mod on the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=0).
 
+Note: this library depends on my [Easy Packet Library](https://github.com/DavidF-Dev/Terraria-Easy-Packets-Lib).
+tModLoader should handle subscribing to it automatically.
+In the odd case that it doesn't, simply subscribe to it manually.
+
 ### Public methods
 All calls can be made through the `DownedNPC` static class.
 ```csharp
