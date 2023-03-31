@@ -44,9 +44,9 @@ The basic methods of this library are available via [mod calls](https://github.c
 If using this approach, you do not need to reference the DLL in your project.
 ```csharp
 Mod mod = ModLoader.GetMod("DownedNPCLib");
-int pinkyKills = mod.Call("GetCountByNetId", NPCID.Pinky);
-int flinxKills = mod.Call("GetCountByType", NPCID.SnowFlinx);
-if (mod.Call("GetByNetId", NPCID.SmallZombie) > 0)
+int pinkyKills = (int)mod.Call("GetCountByNetId", NPCID.Pinky);
+int flinxKills = (int)mod.Call("GetCountByType", NPCID.SnowFlinx);
+if ((int)mod.Call("GetByNetId", NPCID.SmallZombie) > 0)
 {
 }
 ```
