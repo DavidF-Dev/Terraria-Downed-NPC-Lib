@@ -23,7 +23,7 @@ tModLoader should handle subscribing to it automatically.
 In the odd case that it doesn't, simply subscribe to it manually.
 
 ### Public methods
-All calls can be made through the `DownedNPC` static class.
+All calls are available via the `DownedNPC` static class.
 ```csharp
 int pinkyKills = DownedNPC.GetCountByNetId(NPCID.Pinky);
 int flinxKills = DownedNPC.GetCountByType(NPCID.SnowFlinx);
@@ -37,8 +37,19 @@ There are two versions of each method: one for <ins>net ids</ins>, and the other
 
 In most cases you should use the type variant, unless you need to check a specific NPC net id.
 
+The count is updated when an NPC is killed, **after** kill-related hooks.
+
 ### Mod calls
-WIP.
+The basic methods of this library are available via [mod calls](https://github.com/tModLoader/tModLoader/wiki/Expert-Cross-Mod-Content#call-aka-modcall-intermediate).
+If using this approach, you do not need to reference the DLL in your project.
+```csharp
+Mod mod = ModLoader.GetMod("DownedNPCLib");
+int pinkyKills = mod.Call("GetCountByNetId", NPCID.Pinky);
+int flinxKills = mod.Call("GetCountByType", NPCID.SnowFlinx);
+if (mod.Call("GetByNetId", NPCID.SmallZombie) > 0)
+{
+}
+```
 
 ## Contact & Support
 
