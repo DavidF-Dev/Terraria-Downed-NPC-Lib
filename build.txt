@@ -1,6 +1,6 @@
 displayName = Downed NPC Library
 author = DavidFDev
-version = 0.1.0
+version = 0.1.1
 homepage = https://github.com/DavidF-Dev/Terraria-Downed-NPC-Lib
 modReferences = EasyPacketsLib
 hideCode = false
