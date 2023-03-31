@@ -46,7 +46,8 @@ internal sealed class DownedCmd : ModCommand
                 return;
             }
 
-            caller.Reply($"{Lang.GetNPCName(netId)} downed [c/{Color.Yellow.Hex3()}:{DownedNPC.GetCountByNetId(netId)}] time(s) in world {Main.worldName}", Color.White);
+            var count = DownedNPC.GetCountByNetId(netId);
+            caller.Reply($"{Lang.GetNPCName(netId)} downed [c/{Color.Yellow.Hex3()}:{count}] time(s) in world {Main.worldName}", Color.White);
         }
         else if (args[0] == "get2")
         {
@@ -56,7 +57,8 @@ internal sealed class DownedCmd : ModCommand
                 return;
             }
 
-            caller.Reply($"{Lang.GetNPCName(type)} (& variants) downed [c/{Color.Yellow.Hex3()}:{DownedNPC.GetCountByType(type)}] time(s) in world {Main.worldName}", Color.White);
+            var count = DownedNPC.GetCountByType(type);
+            caller.Reply($"{Lang.GetNPCName(type)} (& variants) downed [c/{Color.Yellow.Hex3()}:{count}] time(s) in world {Main.worldName}", Color.White);
         }
         else if (args[0] == "set")
         {
