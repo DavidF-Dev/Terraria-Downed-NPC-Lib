@@ -18,7 +18,7 @@ internal readonly struct DownedNPCPacket : IEasyPacket<DownedNPCPacket>
 
     #region Fields
 
-    public readonly int Type;
+    public readonly int Index;
 
     public readonly int Count;
 
@@ -26,9 +26,9 @@ internal readonly struct DownedNPCPacket : IEasyPacket<DownedNPCPacket>
 
     #region Constructors
 
-    public DownedNPCPacket(int type, int count)
+    public DownedNPCPacket(int index, int count)
     {
-        Type = type;
+        Index = index;
         Count = count;
     }
 
@@ -38,7 +38,7 @@ internal readonly struct DownedNPCPacket : IEasyPacket<DownedNPCPacket>
 
     void IEasyPacket<DownedNPCPacket>.Serialise(BinaryWriter writer)
     {
-        writer.Write(Type);
+        writer.Write(Index);
         writer.Write(Count);
     }
 

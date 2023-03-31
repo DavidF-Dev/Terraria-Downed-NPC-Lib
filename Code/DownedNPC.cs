@@ -3,9 +3,8 @@
  *  DavidFDev
 */
 
-using System;
 using System.Diagnostics.Contracts;
-using Terraria;
+using Terraria.ID;
 
 namespace DownedNPCLib;
 
@@ -17,49 +16,61 @@ public static class DownedNPC
     #region Static Methods
 
     /// <summary>
-    ///     Get all downed npc counts by npc type.
-    ///     Length is equal to NPCLoader.NPCCount.
+    ///     Get whether the specified npc net id has been downed in this world.
     /// </summary>
     [Pure]
-    public static ReadOnlySpan<int> GetAll()
+    public static bool GetByNetId(int netId)
     {
-        return DownedNPCSystem.DownedNPCs;
+        return DownedNPCSystem.GetCount(netId) > 0;
     }
 
     /// <summary>
-    ///     Get whether the specified npc type has been downed in this world.
+    ///     Get whether the specified npc type has been downed in this world, including any associated net ids.
     /// </summary>
     [Pure]
-    public static bool Get(int type)
+    public static bool GetByType(int type)
     {
-        return DownedNPCSystem.DownedNPCs[type] > 0;
+        if (DownedNPCSystem.GetCount(type) > 0)
+        {
+            return true;
+        }
+
+        for (var i = -1; i > NPCID.NegativeIDCount; i--)
+        {
+            if (NPCID.FromNetId(i) == type && DownedNPCSystem.GetCount(i) > 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>
-    ///     Get whether the specified npc type has been downed in this world.
+    ///     Get how many times the specified npc net id has been downed in this world.
     /// </summary>
     [Pure]
-    public static bool Get(NPC npc)
+    public static int GetCountByNetId(int netId)
     {
-        return DownedNPCSystem.DownedNPCs[npc.type] > 0;
+        return DownedNPCSystem.GetCount(netId);
     }
 
     /// <summary>
-    ///     Get how many times the specified npc type has been downed in this world.
+    ///     Get how many times the specified npc type has been downed in this world, including any associated net ids.
     /// </summary>
     [Pure]
-    public static int GetCount(int type)
+    public static int GetCountByType(int type)
     {
-        return DownedNPCSystem.DownedNPCs[type];
-    }
+        var count = DownedNPCSystem.GetCount(type);
+        for (var i = -1; i > NPCID.NegativeIDCount; i--)
+        {
+            if (NPCID.FromNetId(i) == type)
+            {
+                count += DownedNPCSystem.GetCount(i);
+            }
+        }
 
-    /// <summary>
-    ///     Get how many times the specified npc type has been downed in this world.
-    /// </summary>
-    [Pure]
-    public static int GetCount(NPC npc)
-    {
-        return DownedNPCSystem.DownedNPCs[npc.type];
+        return count;
     }
 
     #endregion

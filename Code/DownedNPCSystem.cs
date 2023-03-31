@@ -5,6 +5,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using EasyPacketsLib;
 using Terraria;
 using Terraria.ID;
@@ -25,14 +27,76 @@ internal sealed class DownedNPCSystem : ModSystem
     private static readonly Dictionary<string, int> DownedNPCsByFullName = new();
 
     /// <summary>
-    ///     Downed npc counts by npc type.
-    ///     This is kept up-to-date in single player and multi player.
+    ///     Downed npc counts by npc net id, shifted by |NPCID.NegativeIDCount| to account for negative ids.
+    ///     This is kept up-to-date in single player and multi player.<br /><br />
+    ///     Negative ids (net ids):
+    ///     <code>0 -> NPCID.NegativeIDCount</code>
+    ///     Positive ids (types):
+    ///     <code>NPCID.NegativeIDCount -> (NPCLoader.NPCCount - NPCID.NegativeIDCount)</code>
     /// </summary>
     private static int[] _downedNPCs;
 
     #endregion
 
     #region Static Methods
+
+    /// <summary>
+    ///     Get how many times the specified npc net id has been downed in this world.
+    /// </summary>
+    [Pure]
+    public static int GetCount(int netId)
+    {
+        if (netId <= NPCID.NegativeIDCount || netId >= NPCLoader.NPCCount)
+        {
+            throw new ArgumentOutOfRangeException(nameof(netId));
+        }
+
+        return _downedNPCs[GetIndex(netId)];
+    }
+
+    /// <summary>
+    ///     Set how many times the specified npc net id has been downed in this world.
+    ///     Updates clients if called by the server. Cannot be called by clients.
+    /// </summary>
+    public static void SetCount(int netId, int count)
+    {
+        if (Main.netMode == NetmodeID.MultiplayerClient)
+        {
+            throw new Exception($"{nameof(SetCount)} called by multiplayer client.");
+        }
+
+        if (netId <= NPCID.NegativeIDCount || netId >= NPCLoader.NPCCount)
+        {
+            throw new ArgumentOutOfRangeException(nameof(netId));
+        }
+
+        if (count < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(count));
+        }
+
+        // Follows same logic as OnDoDeathEvents
+        var index = GetIndex(netId);
+        _downedNPCs[index] = count;
+        DownedNPCsByFullName[GetFullNameFromNetId(netId)] = count;
+
+        if (Main.netMode == NetmodeID.Server)
+        {
+            ModContent.GetInstance<DownedNPCLibMod>().SendPacket(new DownedNPCPacket(index, count));
+        }
+    }
+
+    /// <summary>
+    ///     Get the actual index in <see cref="_downedNPCs" /> for the specified npc net id.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Pure]
+    private static int GetIndex(int netId)
+    {
+        // 0 -> NPCID.NegativeIDCount is for negative ids
+        // NPCID.NegativeIDCount -> (NPCLoader.NPCCount - NPCID.NegativeIDCount) is for positive ids
+        return netId < 0 ? Math.Abs(netId) - 1 : netId + Math.Abs(NPCID.NegativeIDCount);
+    }
 
     /// <summary>
     ///     Allows you to make things happen when an NPC dies (for example, setting ModSystem fields).
@@ -42,12 +106,13 @@ internal sealed class DownedNPCSystem : ModSystem
     {
         orig.Invoke(self, closestPlayer);
 
-        _downedNPCs[self.type] += 1;
-        DownedNPCsByFullName[GetFullNameFromType(self.type)] = _downedNPCs[self.type];
+        var index = GetIndex(self.netID);
+        var count = ++_downedNPCs[index];
+        DownedNPCsByFullName[GetFullNameFromNetId(self.netID)] = count;
 
         if (Main.netMode == NetmodeID.Server)
         {
-            ModContent.GetInstance<DownedNPCLibMod>().SendPacket(new DownedNPCPacket(self.type, _downedNPCs[self.type]));
+            ModContent.GetInstance<DownedNPCLibMod>().SendPacket(new DownedNPCPacket(index, count));
         }
     }
 
@@ -62,55 +127,49 @@ internal sealed class DownedNPCSystem : ModSystem
         // If received by client, then simply update the count given by the server
         if (Main.netMode == NetmodeID.MultiplayerClient)
         {
-            _downedNPCs[packet.Type] = packet.Count;
+            _downedNPCs[packet.Index] = packet.Count;
             return;
         }
 
         // If received by server, then a joining client needs to be synced
         // Note, this will sync only those with a count greater than zero
-        foreach (var type in _downedNPCs)
+        for (var i = 0; i < _downedNPCs.Length; i++)
         {
-            if (_downedNPCs[type] > 0)
+            var count = _downedNPCs[i];
+            if (count > 0)
             {
-                sender.Mod.SendPacket(new DownedNPCPacket(type, _downedNPCs[type]), sender.WhoAmI);
+                sender.Mod.SendPacket(new DownedNPCPacket(i, count), sender.WhoAmI);
             }
         }
     }
 
     /// <summary>
-    ///     Get the npc's full name from a loaded npc type.
+    ///     Get the npc's full name from a loaded npc net id.
     /// </summary>
-    private static string GetFullNameFromType(int type)
+    private static string GetFullNameFromNetId(int netId)
     {
-        return type < NPCID.Count ? NPCID.Search.GetName(type) : NPCLoader.GetNPC(type).FullName;
+        return netId < NPCID.Count ? NPCID.Search.GetName(netId) : NPCLoader.GetNPC(netId).FullName;
     }
 
     /// <summary>
-    ///     Get the npc type from a loaded npc's full name.
+    ///     Get the npc net id from a loaded npc's full name.
     /// </summary>
-    private static int GetTypeFromFullName(string fullName)
+    private static bool GetNetIdFromFullName(string fullName, out int netId)
     {
-        if (NPCID.Search.TryGetId(fullName, out var type))
+        if (NPCID.Search.TryGetId(fullName, out netId))
         {
-            return type;
+            return true;
         }
 
         if (ModContent.TryFind(fullName, out ModNPC npc))
         {
-            return npc.Type;
+            netId = npc.Type;
+            return true;
         }
 
-        return -1;
+        netId = default;
+        return false;
     }
-
-    #endregion
-
-    #region Properties
-
-    /// <summary>
-    ///     Downed npc counts by npc type.
-    /// </summary>
-    public static ReadOnlySpan<int> DownedNPCs => new(_downedNPCs);
 
     #endregion
 
@@ -119,7 +178,7 @@ internal sealed class DownedNPCSystem : ModSystem
     public override void PostSetupContent()
     {
         // Initialise the array now that vanilla arrays have been resized and NPCs have been loaded by other mods
-        _downedNPCs = new int[NPCLoader.NPCCount];
+        _downedNPCs = new int[NPCLoader.NPCCount + Math.Abs(NPCID.NegativeIDCount)];
     }
 
     public override void Load()
@@ -154,6 +213,7 @@ internal sealed class DownedNPCSystem : ModSystem
         }
 
         tag.Add("downedNPCs", downedNPCsTag);
+        Mod.Logger.Debug($"Saved {downedNPCsTag.Count} entries for world '{Main.worldName}'.");
     }
 
     public override void LoadWorldData(TagCompound tag)
@@ -172,12 +232,13 @@ internal sealed class DownedNPCSystem : ModSystem
             DownedNPCsByFullName.Add(fullName, c);
 
             // Track counts from loaded mods
-            var type = GetTypeFromFullName(fullName);
-            if (type != -1)
+            if (GetNetIdFromFullName(fullName, out var netId))
             {
-                _downedNPCs[type] = c;
+                _downedNPCs[GetIndex(netId)] = c;
             }
         }
+
+        Mod.Logger.Debug($"Loaded {downedNPCsTag.Count} entries for world '{Main.worldName}'.");
     }
 
     #endregion
