@@ -34,7 +34,11 @@ internal sealed class DownedNPCCommand : ModCommand
 
     public override bool IsLoadingEnabled(Mod mod)
     {
-        return BuildInfo.IsDev;
+#if DEBUG
+        return true;
+#else
+        return false;
+#endif
     }
 
     #endregion
