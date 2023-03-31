@@ -11,7 +11,6 @@ This includes enemies, town NPCs, bosses, critters, etc.
 ## Usage
 ### Requirements
 - tModLoader for `1.4.4`.
-- `Side = Both` in `build.txt` (default if not specified).
 
 ### Referencing the library
 - Add `modReferences = DownedNPCLib` to your mod's `build.txt` file.
