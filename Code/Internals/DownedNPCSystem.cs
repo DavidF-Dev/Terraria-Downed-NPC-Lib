@@ -13,7 +13,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
-namespace DownedNPCLib;
+namespace DownedNPCLib.Internals;
 
 // ReSharper disable once ClassNeverInstantiated.Global
 internal sealed class DownedNPCSystem : ModSystem
@@ -210,7 +210,7 @@ internal sealed class DownedNPCSystem : ModSystem
         }
 
         tag.Add("downedNPCs", downedNPCsTag);
-        
+
         Mod.Logger.Debug($"Saved {downedNPCsTag.Count} entries for world '{Main.worldName}'.");
     }
 

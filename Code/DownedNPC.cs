@@ -4,6 +4,7 @@
 */
 
 using System.Diagnostics.Contracts;
+using DownedNPCLib.Internals;
 using Terraria.ID;
 
 namespace DownedNPCLib;

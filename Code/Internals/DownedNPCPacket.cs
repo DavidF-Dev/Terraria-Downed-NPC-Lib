@@ -6,7 +6,7 @@
 using System.IO;
 using EasyPacketsLib;
 
-namespace DownedNPCLib;
+namespace DownedNPCLib.Internals;
 
 /// <summary>
 ///     Packet used to sync a downed npc count between server and client.

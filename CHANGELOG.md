@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Changed project structure: moved internal code into its own directory and namespace.
+
 ## [0.1.1] - 2023-04-01
 
 - Added mod calls: `GetCountByNetId` and `GetCountByType`.

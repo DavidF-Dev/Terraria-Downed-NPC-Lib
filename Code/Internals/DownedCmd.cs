@@ -8,7 +8,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace DownedNPCLib;
+namespace DownedNPCLib.Internals;
 
 /// <summary>
 ///     Debug command to get or set the downed count.

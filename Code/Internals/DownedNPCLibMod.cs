@@ -6,7 +6,7 @@
 using System;
 using Terraria.ModLoader;
 
-namespace DownedNPCLib;
+namespace DownedNPCLib.Internals;
 
 // ReSharper disable once ClassNeverInstantiated.Global
 internal sealed class DownedNPCLibMod : Mod
