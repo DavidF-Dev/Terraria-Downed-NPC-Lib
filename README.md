@@ -8,6 +8,8 @@
 A Terraria tModLoader library mod for keeping track of how many times NPCs are killed per world.<br />
 This includes enemies, town NPCs, bosses, critters, etc.
 
+It has come to my attention that vanilla offers a very similar API via the Bestiary - whoops! I will still support this library as I'm still quite proud of how it turned out, and how easy & efficient it is to use.
+
 ## Usage
 ### Requirements
 - tModLoader for `1.4.4`.
@@ -37,6 +39,8 @@ There are two versions of each method: one for <ins>net ids</ins>, and the other
 In most cases you should use the type variant, unless you need to check a specific NPC net id.
 
 The count is updated when an NPC is killed, **after** kill-related hooks.
+
+Note that this is not an absolute replacement for some of the existing vanilla `NPC.downedX` flags, specifically those that are complex or multi-part bosses (i.e. Twins, Eater of Worlds, etc.). This library keeps track of kills **per-NPC**, not whether a boss has definitely been defeated.
 
 ### Mod calls
 The basic methods of this library are available via [mod calls](https://github.com/tModLoader/tModLoader/wiki/Expert-Cross-Mod-Content#call-aka-modcall-intermediate).
